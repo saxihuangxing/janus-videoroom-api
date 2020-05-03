@@ -3,6 +3,7 @@ const JanusAdmin = require('./src/JanusAdmin')
 const JanusPlugin = require('./src/JanusPlugin')
 const EchoJanusPlugin = require('./src/plugin/EchoJanusPlugin')
 const RecordPlayJanusPlugin = require('./src/plugin/RecordPlayJanusPlugin')
+const VideoRoomJanusPlugin = require('./src/plugin/VideoRoomJanusPlugin')
 const VideoRoomListenerJanusPlugin = require('./src/plugin/VideoRoomListenerJanusPlugin')
 const VideoRoomPublisherJanusPlugin = require('./src/plugin/VideoRoomPublisherJanusPlugin')
 const StreamingJanusPlugin = require('./src/plugin/StreamingJanusPlugin')
@@ -14,6 +15,7 @@ module.exports = {
   JanusPlugin,
   EchoJanusPlugin,
   RecordPlayJanusPlugin,
+  VideoRoomJanusPlugin,
   VideoRoomListenerJanusPlugin,
   VideoRoomPublisherJanusPlugin,
   StreamingJanusPlugin,
