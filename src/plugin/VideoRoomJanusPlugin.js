@@ -3,23 +3,17 @@ const SdpHelper = require('../SdpHelper')
 const SdpUtils = require('sdp')
 
 class VideoRoomJanusPlugin extends JanusPlugin {
-  constructor (config, logger, filterDirectCandidates = false) {
-    if (!config) {
-      throw new Error('unknown config');
-    }
-
+  constructor (logger, filterDirectCandidates = false) {
     super(logger);
     this.pluginName = 'janus.plugin.videoroom';
+
+    this.filterDirectCandidates = !!filterDirectCandidates;
 
     this.roomId = undefined;
     this.memberId = undefined;
     this.privateMemberId = undefined;
 
-    this.filterDirectCandidates = !!filterDirectCandidates;
-
-    this.config = config;
     this.sdpHelper = new SdpHelper(this.logger);
-
     this.offerSdp = undefined;
     this.answerSdp = undefined;
   }
@@ -48,39 +42,8 @@ class VideoRoomJanusPlugin extends JanusPlugin {
     })
   }
 
-  createRoom () {
-    const body = {
-      request: "create",
-      description: "hey, what's up?",
-      record: this.config.record,
-      videocodec: this.config.codec,
-      rec_dir: this.config.recordDirectory,
-      publishers: this.config.publishers,
-      videoorient_ext: this.config.videoOrientExt
-    }
-
-    if (this.config.bitrate) {
-      body.bitrate = this.config.bitrate;
-    }
-    if (this.config.firSeconds) {
-      body.fir_freq = this.config.firSeconds;
-    }
-
-    return this.transaction('message', { body }, 'success').then((param) => {
-      const { data } = param || {}
-      if (!data || !data.room) {
-        this.logger.error('VideoRoomJanusPlugin, could not create room', data);
-        throw new Error('VideoRoomJanusPlugin, could not create room');
-      }
-
-      return data.room;
-    }).catch((error) => {
-      this.logger.error('VideoRoomJanusPlugin, could not create room', error);
-      throw error;
-    })
-  }
-
-  joinRoomAndPublish (roomId, displayName, offer, relayAudio = true, relayVideo = true) {
+  joinRoomAndPublish (roomId, displayName, offer, pin = null, relayAudio = true, relayVideo = true) {
+    console.log(`Connecting to the room ${roomId}`);
     this.roomId = roomId;
 
     const body = {
@@ -92,6 +55,10 @@ class VideoRoomJanusPlugin extends JanusPlugin {
       video: relayVideo,
       data: false
     };
+
+    if (pin) {
+      body.pin = pin;
+    }
 
     const jsep = offer;
     if (this.filterDirectCandidates && jsep.sdp) {
@@ -126,17 +93,13 @@ class VideoRoomJanusPlugin extends JanusPlugin {
           offer: jsep
         };
       }).catch((error) => {
-        if (error && error.error_code === 426) { // JANUS_VIDEOROOM_ERROR_NO_SUCH_ROOM = 426
-          this.logger.error('VideoRoomJanusPlugin, there is no such room:', roomId);
-        } else {
-          this.logger.error('VideoRoomJanusPlugin, unknown error connecting to room', error);
-        }
+        this.logger.error('VideoRoomJanusPlugin, error connecting to room', error);
         throw error;
       });
   }
 
   subscribeToFeed (memberId, privateMemberId = null, audio = true, video = true) {
-    return this.janus.addPlugin(new VideoRoomJanusPlugin(this.config, console, this.filterDirectCandidates))
+    return this.janus.addPlugin(new VideoRoomJanusPlugin(console, this.filterDirectCandidates))
       .then((newRoomApi) => {
         return newRoomApi.joinRoomAndSubscribe(this.roomId, memberId, privateMemberId)
           .then((offer) => {
