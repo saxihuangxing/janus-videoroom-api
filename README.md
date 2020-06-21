@@ -1,4 +1,2 @@
 # Javascript (node and browser side) API for Janus WebRTC Gateway
-
-
-To test it on localhost, visit: chrome://flags/#allow-insecure-localhost
+This is a fork of TechTeamer janus-api repo with some stuff removed and some stuff modified for easier work with VideoRoom plugin.

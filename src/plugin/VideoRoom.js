@@ -2,7 +2,7 @@ const JanusPlugin = require('../JanusPlugin')
 const SdpHelper = require('../SdpHelper')
 const SdpUtils = require('sdp')
 
-class VideoRoomJanusPlugin extends JanusPlugin {
+class VideoRoom extends JanusPlugin {
   constructor (logger, filterDirectCandidates = false) {
     super(logger);
     this.pluginName = 'janus.plugin.videoroom';
@@ -22,7 +22,7 @@ class VideoRoomJanusPlugin extends JanusPlugin {
     super.hangup();
 
     this.janus.destroyPlugin(this).catch((error) => {
-      this.logger.error('VideoRoomJanusPlugin, destroyPlugin error', error);
+      this.logger.error('VideoRoom, destroyPlugin error', error);
       throw error;
     })
   }
@@ -31,13 +31,13 @@ class VideoRoomJanusPlugin extends JanusPlugin {
     return this.transaction('message', { body: { request: 'list' } }, 'success').then((param) => {
       const { data } = param || {};
       if (!data || !Array.isArray(data.list)) {
-        this.logger.error('VideoRoomJanusPlugin, could not find rooms list', data);
-        throw new Error('VideoRoomJanusPlugin, could not find rooms list');
+        this.logger.error('VideoRoom, could not find rooms list', data);
+        throw new Error('VideoRoom, could not find rooms list');
       }
 
       return data.list;
     }).catch((error) => {
-      this.logger.error('VideoRoomJanusPlugin, cannot list rooms', error);
+      this.logger.error('VideoRoom, cannot list rooms', error);
       throw error;
     })
   }
@@ -73,8 +73,8 @@ class VideoRoomJanusPlugin extends JanusPlugin {
 
         const { data, json } = response || {};
         if (!data || !data.id || !data.private_id || !data.publishers) {
-          this.logger.error('VideoRoomJanusPlugin, could not join room', data);
-          throw new Error('VideoRoomJanusPlugin, could not join room');
+          this.logger.error('VideoRoom, could not join room', data);
+          throw new Error('VideoRoom, could not join room');
         }
         if (!json.jsep) {
           throw new Error('Lacking JSEP field in response');
@@ -94,14 +94,14 @@ class VideoRoomJanusPlugin extends JanusPlugin {
           offer: jsep
         };
       }).catch((error) => {
-        this.logger.error('VideoRoomJanusPlugin, error connecting to room', error);
+        this.logger.error('VideoRoom, error connecting to room', error);
         throw error;
       });
   }
 
   subscribeToFeed (memberId, roomPin = null, privateMemberId = null,
       audio = true, video = true) {
-    return this.janus.addPlugin(new VideoRoomJanusPlugin(console, this.filterDirectCandidates))
+    return this.janus.addPlugin(new VideoRoom(console, this.filterDirectCandidates))
       .then((newRoomApi) => {
         return newRoomApi.joinRoomAndSubscribe(this.roomId, memberId, roomPin, privateMemberId)
           .then((offer) => {
@@ -137,12 +137,12 @@ class VideoRoomJanusPlugin extends JanusPlugin {
       .then((response) => {
         const { data, json } = response || {}
         if (!data || data.videoroom !== 'attached') {
-          this.logger.error('VideoRoomJanusPlugin join answer is not attached', data, json);
-          throw new Error('VideoRoomJanusPlugin join answer is not attached');
+          this.logger.error('VideoRoom join answer is not attached', data, json);
+          throw new Error('VideoRoom join answer is not attached');
         }
         if (!json.jsep) {
-          this.logger.error('VideoRoomJanusPlugin join answer does not contains jsep', data, json);
-          throw new Error('VideoRoomJanusPlugin join answer does not contains jsep');
+          this.logger.error('VideoRoom join answer does not contains jsep', data, json);
+          throw new Error('VideoRoom join answer does not contains jsep');
         }
 
         const jsep = json.jsep;
@@ -152,7 +152,7 @@ class VideoRoomJanusPlugin extends JanusPlugin {
 
         return jsep;
       }).catch((error) => {
-        this.logger.error('VideoRoomJanusPlugin, unknown error connecting to room', error, join);
+        this.logger.error('VideoRoom, unknown error connecting to room', error, join);
         throw error;
       });
   }
@@ -164,13 +164,13 @@ class VideoRoomJanusPlugin extends JanusPlugin {
         const { data, json } = response || {};
 
         if (!data || data.started !== 'ok') {
-          this.logger.error('VideoRoomJanusPlugin, could not start a stream', data, json);
-          throw new Error('VideoRoomJanusPlugin, could not start a stream');
+          this.logger.error('VideoRoom, could not start a stream', data, json);
+          throw new Error('VideoRoom, could not start a stream');
         }
 
         return data;
       }).catch((error) => {
-        this.logger.error('VideoRoomJanusPlugin, unknown error sending answer', error, jsep);
+        this.logger.error('VideoRoom, unknown error sending answer', error, jsep);
         throw error;
       });
   }
@@ -190,12 +190,12 @@ class VideoRoomJanusPlugin extends JanusPlugin {
     const { videoroom } = data || {};
 
     if (!data || !videoroom) {
-      this.logger.error('VideoRoomJanusPlugin got unknown message', json);
+      this.logger.error('VideoRoom got unknown message', json);
       return;
     }
 
     if (videoroom === 'slow_link') {
-      this.logger.debug('VideoRoomJanusPlugin got slow_link', data);
+      this.logger.debug('VideoRoom got slow_link', data);
       this.slowLink();
       return;
     }
@@ -203,7 +203,7 @@ class VideoRoomJanusPlugin extends JanusPlugin {
     if (videoroom === 'event') {
       const { room, joining, unpublished, leaving, publishers } = data;
       if (room !== this.roomId) {
-        this.logger.error('VideoRoomJanusPlugin got unknown roomId', this.roomId, json);
+        this.logger.error('VideoRoom got unknown roomId', this.roomId, json);
         return;
       }
 
@@ -216,14 +216,14 @@ class VideoRoomJanusPlugin extends JanusPlugin {
       } else if (Array.isArray(publishers)) {
         this.emit('publishersUpdated', publishers);
       } else {
-        this.logger.error('VideoRoomJanusPlugin got unknown event', json);
+        this.logger.error('VideoRoom got unknown event', json);
       }
 
       return;
     }
 
-    this.logger.error('VideoRoomJanusPlugin unhandled message:', videoroom, json);
+    this.logger.error('VideoRoom unhandled message:', videoroom, json);
   }
 }
 
-module.exports = VideoRoomJanusPlugin
+module.exports = VideoRoom

@@ -1,28 +1,17 @@
 {
-  "name": "@techteamer/janus-api",
-  "version": "6.1.0",
-  "description": "Janus WebRTC-Gateway API",
+  "name": "@kirillt/janus-videoroom-api",
+  "version": "6.1.1",
+  "description": "Janus WebRTC-Gateway VideoRoom API",
   "main": "index.js",
-  "scripts": {
-    "build-test": "node ./test/buildtest.js"
-  },
   "engines": {
     "node": ">=10.13"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TechTeamer/janus-api.git"
+    "url": "git+https://github.com/kirillt/janus-videoroom-api.git"
   },
-  "keywords": [
-    "janus",
-    "webrtc"
-  ],
-  "author": "TechTeamer",
+  "author": [ "TechTeamer", "kirillt" ],
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/TechTeamer/janus-api/issues"
-  },
-  "homepage": "https://github.com/TechTeamer/janus-api#readme",
   "dependencies": {
     "isomorphic-ws": "^4.0.1",
     "sdp": "^2.5.0",

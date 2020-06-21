@@ -1,6 +1,6 @@
 const JanusPlugin = require('../JanusPlugin')
 
-class VideoRoomAdminJanusPlugin extends JanusPlugin {
+class VideoRoomAdmin extends JanusPlugin {
   constructor (config, logger) {
     if (!config) {
       throw new Error('unknown config');
@@ -86,4 +86,4 @@ class VideoRoomAdminJanusPlugin extends JanusPlugin {
   }
 }
 
-module.exports = VideoRoomAdminJanusPlugin
+module.exports = VideoRoomAdmin
