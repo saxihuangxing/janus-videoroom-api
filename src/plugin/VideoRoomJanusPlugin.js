@@ -42,7 +42,8 @@ class VideoRoomJanusPlugin extends JanusPlugin {
     })
   }
 
-  joinRoomAndPublish (roomId, displayName, offer, pin = null, relayAudio = true, relayVideo = true) {
+  joinRoomAndPublish (roomId, displayName, offer, roomPin = null,
+      relayAudio = true, relayVideo = true) {
     console.log(`Connecting to the room ${roomId}`);
     this.roomId = roomId;
 
@@ -56,8 +57,8 @@ class VideoRoomJanusPlugin extends JanusPlugin {
       data: false
     };
 
-    if (pin) {
-      body.pin = pin;
+    if (roomPin) {
+      body.pin = roomPin;
     }
 
     const jsep = offer;
@@ -98,17 +99,19 @@ class VideoRoomJanusPlugin extends JanusPlugin {
       });
   }
 
-  subscribeToFeed (memberId, privateMemberId = null, audio = true, video = true) {
+  subscribeToFeed (memberId, roomPin = null, privateMemberId = null,
+      audio = true, video = true) {
     return this.janus.addPlugin(new VideoRoomJanusPlugin(console, this.filterDirectCandidates))
       .then((newRoomApi) => {
-        return newRoomApi.joinRoomAndSubscribe(this.roomId, memberId, privateMemberId)
+        return newRoomApi.joinRoomAndSubscribe(this.roomId, memberId, roomPin, privateMemberId)
           .then((offer) => {
             return { subscribeApi: newRoomApi, offer: offer };
           });
       });
   }
 
-  joinRoomAndSubscribe (roomId, publisherId, privatePublisherId = null, audio = true, video = true) {
+  joinRoomAndSubscribe (roomId, publisherId, roomPin = null, privatePublisherId = null,
+      audio = true, video = true) {
     this.roomId = roomId;
 
     let join = {
@@ -119,6 +122,10 @@ class VideoRoomJanusPlugin extends JanusPlugin {
       offer_video: video,
       offer_audio: audio
     };
+
+    if (roomPin) {
+      join.pin = roomPin;
+    }
 
     console.log("Joining room with ID", roomId);
     if (privatePublisherId) {
