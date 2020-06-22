@@ -116,12 +116,12 @@ class VideoRoomSubscriber extends JanusPlugin {
         const { data, json } = response || {};
 
         if (!data || data.configured !== "ok") {
-          this.logger.error("VideoRoom join answer is not \"ok\"", data, json);
-          throw new Error("VideoRoom join answer is not \"ok\"");
+          this.logger.error("VideoRoom configure answer is not \"ok\"", data, json);
+          throw new Error("VideoRoom configure answer is not \"ok\"");
         }
         console.log("Subscription modified", response);
       }).catch((error) => {
-        this.logger.error("VideoRoom, unknown error connecting to room", error, configure);
+        this.logger.error("VideoRoom, unknown error modifying subscription", error, configure);
         throw error;
       });
   }
@@ -132,7 +132,6 @@ class VideoRoomSubscriber extends JanusPlugin {
   }
 
   startAudio () {
-    console.log("[ START AUDIO ]");
     console.log(`Starting audio of publisher ${this.publisherId}`);
     return this.modifySubscription(true, this.video);
   }

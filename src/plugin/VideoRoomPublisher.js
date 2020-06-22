@@ -84,6 +84,56 @@ class VideoRoomPublisher extends JanusPlugin {
           })
   }
 
+  modifyPublishing (audio = true, video = true) {
+    console.log(`Modifying publishing for member ${this.memberId} in room ${this.roomId}`);
+
+    this.audio = audio;
+    this.video = video;
+
+    let configure = {
+      request: 'configure',
+      video: video,
+      audio: audio,
+    };
+    if (this.roomPin) {
+      configure.pin = this.roomPin;
+    }
+
+    return this.transaction("message", { body: configure }, "event")
+      .then((response) => {
+        const { data, json } = response || {};
+
+        if (!data || data.configured !== "ok") {
+          this.logger.error("VideoRoom configure answer is not \"ok\"", data, json);
+          throw new Error("VideoRoom configure answer is not \"ok\"");
+        }
+        console.log("Publishing modified", response);
+      }).catch((error) => {
+        this.logger.error("VideoRoom, unknown error modifying publishing", error, configure);
+        throw error;
+      });
+  }
+
+  stopAudio () {
+    console.log("Stopping published audio");
+    return this.modifyPublishing(false, this.video);
+  }
+
+  startAudio () {
+    console.log("Starting published audio");
+    return this.modifyPublishing(true, this.video);
+  }
+
+  stopVideo () {
+    console.log("Stopping published video");
+    return this.modifyPublishing(this.audio, false);
+  }
+
+  startVideo () {
+    console.log("Starting published video");
+    return this.modifyPublishing(this.audio, true);
+  }
+
   onmessage (data, json) {
     // TODO data.videoroom === 'destroyed' handling
     // TODO unpublished === 'ok' handling : we are unpublished
