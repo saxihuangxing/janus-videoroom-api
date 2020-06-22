@@ -67,9 +67,18 @@ class JanusPlugin extends EventEmitter {
     this.emit('webrtcState', isReady, cause)
   }
 
+  destroy () {
+    this.hangup();
+
+    this.janus.destroyPlugin(this).catch((error) => {
+      this.logger.error('VideoRoom, destroyPlugin error', error);
+      throw error;
+    })
+  }
+
   detach () {
-    this.removeAllListeners()
-    this.janus = null
+    this.removeAllListeners();
+    this.janus = null;
   }
 }
 
