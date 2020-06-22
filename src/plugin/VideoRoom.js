@@ -35,7 +35,7 @@ class VideoRoom extends JanusPlugin {
   //todo: list participants
 
   createPublisher () {
-    return this.janus.addPlugin(new VideoRoomPublisher(console))
+    return this.janus.addPlugin(new VideoRoomPublisher(this.logger))
       .then((publisher) => {
         publisher.initialize(this.createPeerConnection(publisher));
         return publisher;
@@ -43,7 +43,7 @@ class VideoRoom extends JanusPlugin {
   }
 
   createSubscriber () {
-    return this.janus.addPlugin(new VideoRoomSubscriber(console))
+    return this.janus.addPlugin(new VideoRoomSubscriber(this.logger))
       .then((subscriber) => {
         subscriber.initialize(this.createPeerConnection(subscriber));
         return subscriber;
@@ -59,15 +59,9 @@ class VideoRoom extends JanusPlugin {
   submitCandidate (plugin, candidate) {
     if (this.filterDirectCandidates && candidate.candidate &&
       this.sdpHelper.isDirectCandidate(candidate.candidate)) {
-      console.log("ICE: direct candidate filtered");
       return;
     }
 
-    if (!candidate.completed) {
-      console.log("ICE: submitting", candidate);
-    } else {
-      console.log("ICE: completed");
-    }
     return plugin.transaction('trickle', { candidate });
   }
 
