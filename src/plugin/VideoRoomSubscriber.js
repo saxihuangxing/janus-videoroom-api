@@ -12,7 +12,7 @@ class VideoRoomSubscriber extends JanusPlugin {
 
   joinRoomAndSubscribe (roomId, publisherId, roomPin = null, privatePublisherId = null,
       audio = true, video = true) {
-    console.log(`Subscribing to member ${this.publisherId} in room ${this.roomId}`);
+    console.log(`Subscribing to member ${publisherId} in room ${roomId}`);
 
     this.roomId = roomId;
     this.roomPin = roomPin;
