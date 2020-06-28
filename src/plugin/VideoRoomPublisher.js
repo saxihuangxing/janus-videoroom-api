@@ -18,7 +18,7 @@ class VideoRoomPublisher extends JanusPlugin {
   }
 
   joinRoomAndPublish (roomId, displayName, roomPin = null,
-      relayAudio = true, relayVideo = true) {
+      audio = true, video = true) {
     console.log(`Connecting to the room ${roomId}`);
     this.roomId = roomId;
 
@@ -27,8 +27,8 @@ class VideoRoomPublisher extends JanusPlugin {
       room: this.roomId,
       ptype: 'publisher',
       display: displayName,
-      audio: relayAudio,
-      video: relayVideo,
+      audio: audio,
+      video: video,
       data: false
     };
 
@@ -63,6 +63,7 @@ class VideoRoomPublisher extends JanusPlugin {
                 }
 
                 this.memberId = data.id;
+                this.displayName = displayName;
                 this.privateMemberId = data.private_id;
 
                 const jsep = json.jsep;
