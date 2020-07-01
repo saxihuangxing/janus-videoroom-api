@@ -74,6 +74,8 @@ class VideoRoomSubscriber extends JanusPlugin {
                           throw new Error('VideoRoom, could not start a stream');
                         }
 
+                        this.audioOn = audio;
+                        this.videoOn = video;
                         return data;
                       }).catch((error) => {
                         this.logger.error('VideoRoom, unknown error sending answer', error, jsep);
@@ -90,9 +92,6 @@ class VideoRoomSubscriber extends JanusPlugin {
 
   modifySubscription (audio = true, video = true) {
     console.log(`Modifying subscription to member ${this.publisherId} in room ${this.roomId}`);
-
-    this.audio = audio;
-    this.video = video;
 
     let configure = {
       request: 'configure',
@@ -120,6 +119,9 @@ class VideoRoomSubscriber extends JanusPlugin {
           throw new Error("VideoRoom configure answer is not \"ok\"");
         }
         console.log("Subscription modified", response);
+
+        this.audioOn = audio;
+        this.videoOn = video;
       }).catch((error) => {
         this.logger.error("VideoRoom, unknown error modifying subscription", error, configure);
         throw error;
@@ -127,23 +129,39 @@ class VideoRoomSubscriber extends JanusPlugin {
   }
 
   stopAudio () {
-    console.log(`Stopping audio of publisher ${this.publisherId}`);
-    return this.modifySubscription(false, this.video);
+    if (this.audioOn) {
+      console.log(`Stopping audio of publisher ${this.publisherId}`);
+      return this.modifySubscription(false, this.videoOn);
+    } else {
+      console.log(`Audio of publisher ${this.publisherId} is already turned off`);
+    }
   }
 
   startAudio () {
-    console.log(`Starting audio of publisher ${this.publisherId}`);
-    return this.modifySubscription(true, this.video);
+    if (!this.audioOn) {
+      console.log(`Starting audio of publisher ${this.publisherId}`);
+      return this.modifySubscription(true, this.videoOn);
+    } else {
+      console.log(`Audio of publisher ${this.publisherId} is already turned on`);
+    }
   }
 
   stopVideo () {
-    console.log(`Stopping video of publisher ${this.publisherId}`);
-    return this.modifySubscription(this.audio, false);
+    if (this.videoOn) {
+      console.log(`Stopping video of publisher ${this.publisherId}`);
+      return this.modifySubscription(this.audioOn, false);
+    } else {
+      console.log(`Video of publisher ${this.publisherId} is already turned off`);
+    }
   }
 
   startVideo () {
-    console.log(`Starting video of publisher ${this.publisherId}`);
-    return this.modifySubscription(this.audio, true);
+    if (!this.videoOn) {
+      console.log(`Starting video of publisher ${this.publisherId}`);
+      return this.modifySubscription(this.audioOn, true);
+    } else {
+      console.log(`Video of publisher ${this.publisherId} is already turned on`);
+    }
   }
 }
 

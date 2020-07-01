@@ -75,6 +75,9 @@ class VideoRoomPublisher extends JanusPlugin {
                 return this.peerConnection.setRemoteDescription(jsep)
                   .then(() => {
                     console.log("[pub] RemoteDescription set", jsep);
+
+                    this.audioOn = audio;
+                    this.videoOn = video;
                     return data.publishers;
                   })
               }).catch((error) => {
@@ -87,9 +90,6 @@ class VideoRoomPublisher extends JanusPlugin {
 
   modifyPublishing (audio = true, video = true) {
     console.log(`Modifying publishing for member ${this.memberId} in room ${this.roomId}`);
-
-    this.audio = audio;
-    this.video = video;
 
     let configure = {
       request: 'configure',
@@ -108,7 +108,10 @@ class VideoRoomPublisher extends JanusPlugin {
           this.logger.error("VideoRoom configure answer is not \"ok\"", data, json);
           throw new Error("VideoRoom configure answer is not \"ok\"");
         }
+
         console.log("Publishing modified", response);
+        this.audioOn = audio;
+        this.videoOn = video;
       }).catch((error) => {
         this.logger.error("VideoRoom, unknown error modifying publishing", error, configure);
         throw error;
@@ -116,23 +119,39 @@ class VideoRoomPublisher extends JanusPlugin {
   }
 
   stopAudio () {
-    console.log("Stopping published audio");
-    return this.modifyPublishing(false, this.video);
+    if (this.audioOn) {
+      console.log("Stopping published audio");
+      return this.modifyPublishing(false, this.videoOn);
+    } else {
+      console.log(`Published audio is already turned off`);
+    }
   }
 
   startAudio () {
-    console.log("Starting published audio");
-    return this.modifyPublishing(true, this.video);
+    if (!this.audioOn) {
+      console.log("Starting published audio");
+      return this.modifyPublishing(true, this.videoOn);
+    } else {
+      console.log(`Published audio is already turned on`);
+    }
   }
 
   stopVideo () {
-    console.log("Stopping published video");
-    return this.modifyPublishing(this.audio, false);
+    if (this.videoOn) {
+      console.log("Stopping published video");
+      return this.modifyPublishing(this.audioOn, false);
+    } else {
+      console.log(`Published video is already turned off`);
+    }
   }
 
   startVideo () {
-    console.log("Starting published video");
-    return this.modifyPublishing(this.audio, true);
+    if (!this.videoOn) {
+      console.log("Starting published video");
+      return this.modifyPublishing(this.audioOn, true);
+    } else {
+      console.log(`Video of publisher ${this.publisherId} is already turned on`);
+    }
   }
 
   onmessage (data, json) {
