@@ -11,7 +11,7 @@ class VideoRoomSubscriber extends JanusPlugin {
   }
 
   joinRoomAndSubscribe (roomId, publisherId, roomPin = null, privatePublisherId = null,
-      audio = true, video = true) {
+      audio = true, video = true, data = true) {
     console.log(`Subscribing to member ${publisherId} in room ${roomId}`);
 
     this.roomId = roomId;
@@ -26,8 +26,12 @@ class VideoRoomSubscriber extends JanusPlugin {
       ptype: "subscriber",
       feed: publisherId,
       room: roomId,
+      audio: audio,
+      video: video,
+      data: data,
       offer_video: video,
-      offer_audio: audio
+      offer_audio: audio,
+      offer_data: data
     };
     if (roomPin) {
       join.pin = roomPin;
@@ -90,7 +94,7 @@ class VideoRoomSubscriber extends JanusPlugin {
       });
   }
 
-  modifySubscription (audio = true, video = true) {
+  modifySubscription (audio = true, video = true, data = true) {
     console.log(`Modifying subscription to member ${this.publisherId} in room ${this.roomId}`);
 
     let configure = {
@@ -100,8 +104,10 @@ class VideoRoomSubscriber extends JanusPlugin {
       room: this.roomId,
       video: video,
       audio: audio,
+      data: data,
       offer_video: video,
-      offer_audio: audio
+      offer_audio: audio,
+      offer_data: data
     };
     if (this.roomPin) {
       configure.pin = this.roomPin;

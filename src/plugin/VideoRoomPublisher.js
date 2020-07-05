@@ -18,7 +18,7 @@ class VideoRoomPublisher extends JanusPlugin {
   }
 
   joinRoomAndPublish (roomId, displayName, roomPin = null,
-      audio = true, video = true) {
+      audio = true, video = true, data = true) {
     console.log(`Connecting to the room ${roomId}`);
     this.roomId = roomId;
 
@@ -29,7 +29,7 @@ class VideoRoomPublisher extends JanusPlugin {
       display: displayName,
       audio: audio,
       video: video,
-      data: false
+      data: data,
     };
 
     if (roomPin) {
@@ -88,13 +88,14 @@ class VideoRoomPublisher extends JanusPlugin {
           })
   }
 
-  modifyPublishing (audio = true, video = true) {
+  modifyPublishing (audio = true, video = true, data = true) {
     console.log(`Modifying publishing for member ${this.memberId} in room ${this.roomId}`);
 
     let configure = {
       request: 'configure',
       video: video,
       audio: audio,
+      data: data
     };
     if (this.roomPin) {
       configure.pin = this.roomPin;
