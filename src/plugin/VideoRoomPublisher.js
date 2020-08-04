@@ -1,6 +1,6 @@
-const JanusPlugin = require('../JanusPlugin');
+const LeaveCapability = require('./LeaveCapability');
 
-class VideoRoomPublisher extends JanusPlugin {
+class VideoRoomPublisher extends LeaveCapability {
   constructor (logger) {
     super(logger);
     this.pluginName = 'janus.plugin.videoroom';
