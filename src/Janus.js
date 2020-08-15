@@ -322,7 +322,7 @@ class Janus {
 
     if (json.janus === 'error') { // Oops, something wrong happened
       if (json.error && json.error.code && !ignoredErrorCodes.includes(json.error.code)) {
-        this.logger.error('Janus error response' + json)
+        this.logger.error('Janus error response' + JSON.stringify(json, null, 2))
       }
 
       const transaction = this.getTransaction(json, true)
