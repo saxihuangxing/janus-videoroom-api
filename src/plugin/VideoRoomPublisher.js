@@ -16,6 +16,15 @@ class VideoRoomPublisher extends LeaveCapability {
   initialize (peerConnection) {
     this.peerConnection = peerConnection;
   }
+  
+ sendData(msg){
+    if(this.dataChannel){
+        console.log("publish send data " + msg);
+        this.dataChannel.send(msg);
+    }else{
+        console.error("sendData dataChannel =  " + this.dataChannel);
+    }
+  }
 
   joinRoomAndPublish (roomId, displayName, roomPin = null,
       audio = true, video = true, data = true) {
@@ -34,6 +43,24 @@ class VideoRoomPublisher extends LeaveCapability {
 
     if (roomPin) {
       body.pin = roomPin;
+    }
+    
+    if(data){
+        var onDataChannelMessage = function(event) {
+            console.log('Received message on data channel:', event);
+        }
+        var onDataChannelStateChange = function(event) {
+            console.log('Received state change on data channel:', event);
+        }
+        var onDataChannelError = function(error) {
+            console.error('Got error on data channel:', error);
+            // TODO
+        }
+        this.dataChannel =  this.peerConnection.createDataChannel("JanusDataChannel", {ordered:false});
+        this.dataChannel.onmessage = onDataChannelMessage;
+        this.dataChannel.onopen = onDataChannelStateChange;
+        this.dataChannel.onclose = onDataChannelStateChange;
+        this.dataChannel.onerror = onDataChannelError;
     }
 
     return this.peerConnection.createOffer({})
