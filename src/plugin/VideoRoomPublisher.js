@@ -17,15 +17,6 @@ class VideoRoomPublisher extends LeaveCapability {
     this.peerConnection = peerConnection;
   }
   
- sendData(msg){
-    if(this.dataChannel){
-        console.log("publish send data " + msg);
-        this.dataChannel.send(msg);
-    }else{
-        console.error("sendData dataChannel =  " + this.dataChannel);
-    }
-  }
-
   joinRoomAndPublish (roomId, displayName, roomPin = null,
       audio = true, video = true, data = true) {
     console.log(`Connecting to the room ${roomId}`);
@@ -45,22 +36,22 @@ class VideoRoomPublisher extends LeaveCapability {
       body.pin = roomPin;
     }
     
-    if(data){
-        var onDataChannelMessage = function(event) {
-            console.log('Received message on data channel:', event);
-        }
-        var onDataChannelStateChange = function(event) {
-            console.log('Received state change on data channel:', event);
-        }
-        var onDataChannelError = function(error) {
-            console.error('Got error on data channel:', error);
-            // TODO
-        }
-        this.dataChannel =  this.peerConnection.createDataChannel("JanusDataChannel", {ordered:false});
-        this.dataChannel.onmessage = onDataChannelMessage;
+    if (data) {
+        this.dataChannel = this.peerConnection.createDataChannel("JanusDataChannel", { ordered: false });
+
+        this.dataChannel.onmessage = (event) => {
+          console.warn("Received an unexpected message on data channel", event);
+        };
+
+        let onDataChannelStateChange = (event) => {
+          console.log("Received state change on data channel", event);
+        };
         this.dataChannel.onopen = onDataChannelStateChange;
         this.dataChannel.onclose = onDataChannelStateChange;
-        this.dataChannel.onerror = onDataChannelError;
+
+        this.dataChannel.onerror = (error) => {
+          console.error("Got an error on data channel", error);
+        };
     }
 
     return this.peerConnection.createOffer({})
@@ -144,6 +135,15 @@ class VideoRoomPublisher extends LeaveCapability {
         this.logger.error("VideoRoom, unknown error modifying publishing", error, configure);
         throw error;
       });
+  }
+
+  sendData (message){
+    if (this.dataChannel) {
+      console.log("Sending some data ", message);
+      this.dataChannel.send(message);
+    } else {
+      console.error("Failed to send data over the DataChannel", this.dataChannel);
+    }
   }
 
   stopAudio () {
