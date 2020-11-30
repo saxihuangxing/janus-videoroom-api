@@ -40,6 +40,24 @@ class VideoRoomSubscriber extends LeaveCapability {
     if (privatePublisherId) {
       join.private_id = privatePublisherId;
     }
+    if(data){
+      var onDataChannelMessage = function(event) {
+        console.log('Received message on data channel:', event);
+        this.emit('dataMessage',event.data);
+      }
+      var onDataChannelStateChange = function(event) {
+        console.log('Received state change on data channel:', event);
+      }
+      var onDataChannelError = function(error) {
+        console.error('Got error on data channel:', error);
+        // TODO
+      }
+      this.dataChannel =  this.peerConnection.createDataChannel("JanusDataChannel", {ordered:false});
+      this.dataChannel.onmessage = onDataChannelMessage.bind(this);
+      this.dataChannel.onopen = onDataChannelStateChange;
+      this.dataChannel.onclose = onDataChannelStateChange;
+      this.dataChannel.onerror = onDataChannelError;
+    }
 
     if (data) {
       this.dataChannel = this.peerConnection.createDataChannel("JanusDataChannel", {ordered:false});
