@@ -316,7 +316,7 @@ class Janus {
         this.logger.error('This handle is not attached to this session', sender)
         return
       }
-      pluginHandle.slowLink(json.uplink, json.nacks)
+      //  pluginHandle.slowLink(json.uplink, json.nacks) //publisher have notify this event ,so it doesn't  need  duplicate  notify in here. 
       return
     }
 
